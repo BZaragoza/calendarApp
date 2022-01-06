@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import Modal from "react-modal";
 import DateTimePicker from "react-datetime-picker";
 import moment from "moment";
-import toast, { Toaster } from "react-hot-toast";
+import Swal from 'sweetalert2';
+
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux";
 import { uiCloseModal } from "../../redux/actions/ui";
@@ -26,10 +27,10 @@ const customStyles = {
 const now = moment().minutes(0).seconds(0).add(1, "hours");
 const nowPlus1 = now.clone().add(1, "hours");
 
-Modal.setAppElement("#root");
 
-const toastError = () =>
-  toast.error("La fecha de término debe ser mayor a la fecha de inicio.");
+if (process.env.NODE_ENV !== 'test') {
+  Modal.setAppElement("#root");
+}
 
 const initState = {
   title: "",
@@ -92,8 +93,7 @@ const CalendarModal = () => {
     const momentEnd = moment(end);
 
     if (momentStart.isSameOrAfter(momentEnd)) {
-      toastError();
-      return;
+      return Swal.fire('Error', 'End date must be after start date', 'error');
     }
 
     if (title.trim().length < 2) {
@@ -119,6 +119,7 @@ const CalendarModal = () => {
         closeTimeoutMS={200}
         className="modal"
         overlayClassName="modal-fondo"
+        ariaHideApp={process.env.NODE_ENV !== 'test'}
       >
         <h1> {activeEvent ? 'Editar' : 'Nuevo' } evento </h1>
         <hr />
@@ -180,7 +181,6 @@ const CalendarModal = () => {
           </button>
         </form>
       </Modal>
-      <Toaster position="top-right" />
     </>
   );
 };
